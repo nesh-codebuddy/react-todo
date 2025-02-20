@@ -1,0 +1,22 @@
+.addTodoWrapper {
+  max-width: 400px;
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.addTodoInput,
+.mantine-Input-wrapper {
+  width: 251px;
+  margin-right: 16px;
+}
+
+.addTodoInput,
+button:hover {
+  border-color: transparent;
+}
+
+.addTodoInput,
+button:focus {
+  outline: none;
+}
