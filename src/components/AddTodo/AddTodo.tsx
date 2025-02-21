@@ -3,11 +3,11 @@ import { Input, Text } from "@mantine/core";
 import { Button } from "@mantine/core";
 import styles from "./AddTodo.module.css";
 
-interface AppTodo {
+interface AddTodoInterface {
   onCreate: () => void;
 }
 
-const AddTodo: React.FC<AppTodo> = ({ onCreate }) => {
+const AddTodo: React.FC<AddTodoInterface> = ({ onCreate }) => {
   const [currentTodo, setCurrentTodo] = useState<string>("");
   const [error, setError] = useState<boolean>(false);
   const [apiError, setApiError] = useState<string | Error>("");

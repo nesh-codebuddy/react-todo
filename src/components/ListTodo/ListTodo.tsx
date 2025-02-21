@@ -4,16 +4,17 @@ import styles from "./ListTodo.module.css";
 import { Button } from "@mantine/core";
 import { TodoItemType } from "../../types/types";
 
-interface ListTodo {
+interface ListTodoInterface {
   todo: TodoItemType;
   deleteTodo: React.MouseEventHandler<HTMLButtonElement>;
 }
 
-const ListTodo = (props: ListTodo) => {
-  const { todo, deleteTodo } = props;
+const ListTodo: React.FC<ListTodoInterface> = ({ todo, deleteTodo }) => {
   return (
     <div className={styles.listTodoWrapper} key={todo.id}>
-      <Text size="lg" className={styles.todoText}>{todo.title}</Text>
+      <Text size="lg" className={styles.todoText}>
+        {todo.title}
+      </Text>
       <Button variant="filled" color="gray" onClick={deleteTodo}>
         Delete
       </Button>
