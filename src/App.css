@@ -11,3 +11,11 @@
 .mantine-Input-wrapper {
   width: 350px;
 }
+
+.text {
+  margin-top: 24px !important;
+}
+
+.center {
+  height: 100vh;
+}

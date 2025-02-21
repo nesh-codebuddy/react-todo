@@ -4,13 +4,13 @@ import { Button } from "@mantine/core";
 import styles from "./AddTodo.module.css";
 
 interface AppTodo {
-  onCreate: Function;
+  onCreate: () => void;
 }
 
-const AddTodo = ({ onCreate }: AppTodo) => {
+const AddTodo: React.FC<AppTodo> = ({ onCreate }) => {
   const [currentTodo, setCurrentTodo] = useState<string>("");
   const [error, setError] = useState<boolean>(false);
-  const [apiError, setApiError] = useState<string>("");
+  const [apiError, setApiError] = useState<string | Error>("");
 
   const handleTodoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const {
@@ -30,12 +30,17 @@ const AddTodo = ({ onCreate }: AppTodo) => {
         method: "POST",
         body: JSON.stringify(currentTodo),
       });
+      const respData = await resp.json();
       if (resp.status === 200) {
         onCreate();
         setCurrentTodo("");
+      } else {
+        setApiError(respData.msg);
       }
-    } catch (error: any) {
-      setApiError(error.msg);
+    } catch (error) {
+      if (error instanceof Error) {
+        setApiError(error);
+      }
     }
   };
 
@@ -55,7 +60,7 @@ const AddTodo = ({ onCreate }: AppTodo) => {
           Submit
         </Button>
       </div>
-      {apiError && <Text c="red">{apiError}</Text>}
+      {apiError && <Text c="red">{`${apiError}`}</Text>}
     </>
   );
 };

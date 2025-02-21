@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { TodoItemType } from "./types/types";
-import { Input, Text } from "@mantine/core";
+import { Input, Text, Center, Loader } from "@mantine/core";
 import "./App.css";
 import AddTodo from "./components/AddTodo/AddTodo";
 import ListTodo from "./components/ListTodo/ListTodo";
@@ -9,7 +9,8 @@ const App = () => {
   const [todoList, setTodoList] = useState<Array<TodoItemType>>([]);
   const [searchValue, setSearchValue] = useState("");
   const [searchResult, setSearchResult] = useState<Array<TodoItemType>>([]);
-  const [apiError, setApiError] = useState<string>("");
+  const [apiError, setApiError] = useState<string | Error>("");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const getTodoList = async () => {
     try {
@@ -17,19 +18,35 @@ const App = () => {
         method: "GET",
       });
       const todoData = await list.json();
-      console.log("list", todoData);
-      setTodoList(todoData);
-    } catch (error: any) {
-      console.log("error", error);
-      setApiError(error.msg);
+      if (list.status === 200) {
+        console.log("list", todoData);
+        setTodoList(todoData);
+      } else {
+        setApiError(todoData.msg);
+      }
+      setIsLoading(false);
+    } catch (error) {
+      if (error instanceof Error) {
+        setApiError(error);
+        setIsLoading(false);
+      }
     }
   };
 
   useEffect(() => {
     setTimeout(getTodoList, 1000);
+    // getTodoList();
   }, []);
 
-  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    if (searchValue) {
+      handleSearch({ target: { value: searchValue } });
+    }
+  }, [todoList]);
+
+  const handleSearch = (
+    event: React.ChangeEvent<HTMLInputElement> | { target: { value: string } }
+  ) => {
     const {
       target: { value },
     } = event;
@@ -47,14 +64,28 @@ const App = () => {
         method: "DELETE",
       });
       console.log("resp", resp);
+      const respData = await resp.json();
       if (resp.status === 200) {
         getTodoList();
+      } else {
+        setApiError(respData.msg);
       }
-    } catch (error: any) {
-      console.log("error", error);
-      setApiError(error.msg);
+    } catch (error) {
+      if (error instanceof Error) {
+        setApiError(error);
+        setIsLoading(false);
+      }
     }
   };
+
+  if (isLoading) {
+    return (
+      <Center className="center">
+        <Loader />
+      </Center>
+    );
+  }
+
   return (
     <div className="wrapper">
       <Input
@@ -65,17 +96,31 @@ const App = () => {
         onChange={handleSearch}
       />
       <AddTodo onCreate={getTodoList} />
-      {apiError && <Text c="red">{apiError}</Text>}
+      {apiError && <Text c="red">{`${apiError}`}</Text>}
       {searchResult.length > 0 &&
         searchValue &&
         searchResult.map((todo) => (
-          <ListTodo todo={todo} deleteTodo={() => handleDelete(todo.id)} />
+          <ListTodo
+            todo={todo}
+            deleteTodo={() => handleDelete(todo.id)}
+            key={todo.id}
+          />
         ))}
+      {searchValue && searchResult.length === 0 && (
+        <Text className="text">No Search Result Found</Text>
+      )}
       {todoList.length > 0 &&
         !searchValue &&
         todoList.map((todo) => (
-          <ListTodo todo={todo} deleteTodo={() => handleDelete(todo.id)} />
+          <ListTodo
+            todo={todo}
+            deleteTodo={() => handleDelete(todo.id)}
+            key={todo.id}
+          />
         ))}
+      {todoList.length === 0 && !searchValue && (
+        <Text className="text">No Results Found</Text>
+      )}
     </div>
   );
 };
